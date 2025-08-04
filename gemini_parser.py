@@ -39,7 +39,7 @@ Otherwise, respond with only this JSON (no commentary):
 """
     try:
         client = genai.Client(
-                api_key="AIzaSyBxgWtRszQJYalspo_0CGFSCS6B96zVxq0",
+                api_key=GEMINI_API_KEY,
         )
 
         model = "gemini-2.5-flash"
