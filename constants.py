@@ -15,10 +15,20 @@ EXPENSE_CATEGORIES = [
     'Other'
 ]
 
+# Asset types
+ASSET_TYPES = [
+    'stock',
+    'crypto',
+    'real_estate',
+    'cash',
+    'other'
+]
+
 # Time range constants
 TIME_RANGES = {
     'today': 'Today',
     'this_week': 'This Week',
     'this_month': 'This Month',
-    'last_month': 'Last Month'
+    'last_month': 'Last Month',
+    '3months': 'Last 3 Months'
 }
