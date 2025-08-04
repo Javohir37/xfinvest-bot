@@ -1,7 +1,7 @@
 # Bot configuration
-BOT_TOKEN = "8302424401:AAFd7KvwA2S5WLMD1XFIQmuRJ_-mRVj8Hf0"
+BOT_TOKEN = ""
 # Gemini API configuration
-GEMINI_API_KEY = "AIzaSyBxgWtRszQJYalspo_0CGFSCS6B96zVxq0"
+GEMINI_API_KEY = ""
 
 # Categories for expenses/resisted spending
 EXPENSE_CATEGORIES = [
