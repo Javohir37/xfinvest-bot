@@ -50,24 +50,25 @@ def parse_date_range(time_range_str):
     """Converts a string like 'this_week' into a start and end date."""
     today = date.today()
 
-    # Handle special case for "3months"
-    if time_range_str == '3months':
-        start_date = today - timedelta(days=90)
-        return start_date, today
+    # Map of predefined ranges
+    range_mappings = {
+        'today': (today, today),
+        'this_week': (today - timedelta(days=today.weekday()), today),
+        'this_month': (today.replace(day=1), today),
+        '3months': (today - timedelta(days=90), today),
+    }
 
-    if time_range_str == 'today':
-        return today, today
-    if time_range_str == 'this_week':
-        start_date = today - timedelta(days=today.weekday())
-        return start_date, today
-    if time_range_str == 'this_month':
-        start_date = today.replace(day=1)
-        return start_date, today
+    # Handle last_month specially
     if time_range_str == 'last_month':
         first_day_current_month = today.replace(day=1)
         last_day_last_month = first_day_current_month - timedelta(days=1)
         first_day_last_month = last_day_last_month.replace(day=1)
         return first_day_last_month, last_day_last_month
+
+    # Handle predefined ranges
+    if time_range_str in range_mappings:
+        return range_mappings[time_range_str]
+
     # Handle custom date ranges like "from 2023-01-01 to 2023-01-31"
     if 'from' in time_range_str and 'to' in time_range_str:
         try:
@@ -77,6 +78,7 @@ def parse_date_range(time_range_str):
             return date.fromisoformat(start_date_str), date.fromisoformat(end_date_str)
         except (ValueError, IndexError):
             return today, today  # Fallback
+
     return today, today  # Default fallback
 
 
@@ -221,4 +223,144 @@ def get_transactions_time_series(time_range_str, interval='day'):
         'dates': dates,
         'expenses': expenses,
         'resisted': resisted
+    }
+
+
+def get_transactions_summary_grouped(time_range_str, interval='day'):
+    """Queries the database for a summary of transactions grouped by time intervals."""
+    start_date, end_date = parse_date_range(time_range_str)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Format the date based on the interval
+    if interval == 'day':
+        date_format = '%Y-%m-%d'
+        group_by = "date"
+        label_format = '%b %d'  # Aug 04
+    elif interval == 'week':
+        date_format = '%Y-%W'  # Year-Week number
+        group_by = "strftime('%Y-%W', date)"
+        label_format = 'Week of %b %d'  # Week of Aug 01
+    else:  # month
+        date_format = '%Y-%m'
+        group_by = "strftime('%Y-%m', date)"
+        label_format = '%b %Y'  # Aug 2025
+
+    # Expenses by time period and category
+    cursor.execute(f"""
+        SELECT {group_by} as period, category, SUM(amount_usd) as total 
+        FROM transactions 
+        WHERE type = 'expense' AND date BETWEEN ? AND ?
+        GROUP BY period, category
+        ORDER BY period, category
+    """, (start_date.isoformat(), end_date.isoformat()))
+
+    expenses_by_period = {}
+    for row in cursor.fetchall():
+        period = row['period']
+        if period not in expenses_by_period:
+            expenses_by_period[period] = {}
+        expenses_by_period[period][row['category']] = row['total']
+
+    # Total resisted by time period
+    cursor.execute(f"""
+        SELECT {group_by} as period, SUM(amount_usd) as total 
+        FROM transactions 
+        WHERE type = 'resisted' AND date BETWEEN ? AND ?
+        GROUP BY period
+        ORDER BY period
+    """, (start_date.isoformat(), end_date.isoformat()))
+
+    resisted_by_period = {}
+    for row in cursor.fetchall():
+        resisted_by_period[row['period']] = row['total']
+
+    conn.close()
+
+    # Format periods for display based on interval
+    formatted_periods = {}
+    for period in list(expenses_by_period.keys()) + list(resisted_by_period.keys()):
+        if period not in formatted_periods:
+            if interval == 'day':
+                # Just use the date directly
+                formatted_periods[period] = datetime.strptime(period, '%Y-%m-%d').strftime(label_format)
+            elif interval == 'week':
+                # Convert YYYY-WW to date representing Monday of that week
+                year, week = period.split('-')
+                d = datetime.strptime(f'{year}-{week}-1', '%Y-%W-%w')
+                formatted_periods[period] = d.strftime(label_format)
+            else:  # month
+                # Add day to make a valid date
+                d = datetime.strptime(f"{period}-01", '%Y-%m-%d')
+                formatted_periods[period] = d.strftime(label_format)
+
+    return {
+        'expenses_by_period': expenses_by_period,
+        'resisted_by_period': resisted_by_period,
+        'formatted_periods': formatted_periods
+    }
+
+
+def get_transactions_details_grouped(time_range_str, interval='day'):
+    """Queries the database for a detailed list of transactions grouped by time intervals."""
+    start_date, end_date = parse_date_range(time_range_str)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Format the date based on the interval
+    if interval == 'day':
+        date_format = '%Y-%m-%d'
+        group_by = "date"
+        label_format = '%b %d'  # Aug 04
+    elif interval == 'week':
+        date_format = '%Y-%W'  # Year-Week number
+        group_by = "strftime('%Y-%W', date)"
+        label_format = 'Week of %b %d'  # Week of Aug 01
+    else:  # month
+        date_format = '%Y-%m'
+        group_by = "strftime('%Y-%m', date)"
+        label_format = '%b %Y'  # Aug 2025
+
+    # Get all transactions for the period
+    cursor.execute(
+        f"SELECT {group_by} as period, type, category, amount_usd, date, source_text "
+        f"FROM transactions WHERE date BETWEEN ? AND ? "
+        f"ORDER BY period, type, category",
+        (start_date.isoformat(), end_date.isoformat())
+    )
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Group by period
+    transactions_by_period = {}
+    for row in rows:
+        period = row['period']
+        if period not in transactions_by_period:
+            transactions_by_period[period] = {'expenses': [], 'resisted': []}
+
+        if row['type'] == 'expense':
+            transactions_by_period[period]['expenses'].append(dict(row))
+        else:
+            transactions_by_period[period]['resisted'].append(dict(row))
+
+    # Format periods for display
+    formatted_periods = {}
+    for period in transactions_by_period.keys():
+        if interval == 'day':
+            # Just use the date directly
+            formatted_periods[period] = datetime.strptime(period, '%Y-%m-%d').strftime(label_format)
+        elif interval == 'week':
+            # Convert YYYY-WW to date representing Monday of that week
+            year, week = period.split('-')
+            d = datetime.strptime(f'{year}-{week}-1', '%Y-%W-%w')
+            formatted_periods[period] = d.strftime(label_format)
+        else:  # month
+            # Add day to make a valid date
+            d = datetime.strptime(f"{period}-01", '%Y-%m-%d')
+            formatted_periods[period] = d.strftime(label_format)
+
+    return {
+        'transactions_by_period': transactions_by_period,
+        'formatted_periods': formatted_periods
     }
