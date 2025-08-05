@@ -1,4 +1,4 @@
-"""Conversation handlers for interactive bot commands"""
+#Conversation handlers for interactive bot commands
 import logging
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -21,9 +21,9 @@ SELECT_GROUPING = 2  # New state for grouping options
 
 logger = logging.getLogger(__name__)
 
-# --- Pie Chart Command Flow ---
+#  Pie Chart Command Flow
 async def piechart_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start the pie chart command flow by asking for timeframe."""
+    #Start the pie chart command flow by asking for timeframe
     user_id = update.effective_user.id if update.effective_user else "Unknown"
     logger.info(f"Received /piechart command from user {user_id}")
 
@@ -49,7 +49,7 @@ async def piechart_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return SELECT_TIMEFRAME
 
 async def piechart_timeframe_selected(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle timeframe selection for pie chart."""
+    #Handle timeframe selection for pie chart
     query = update.callback_query
     await query.answer()
 
@@ -83,9 +83,9 @@ async def piechart_timeframe_selected(update: Update, context: ContextTypes.DEFA
 
     return ConversationHandler.END
 
-# --- Bar Chart Command Flow ---
+#  Bar Chart Command Flow
 async def barchart_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start the bar chart command flow by asking for timeframe."""
+    #Start the bar chart command flow by asking for timeframe
     user_id = update.effective_user.id if update.effective_user else "Unknown"
     logger.info(f"Received /barchart command from user {user_id}")
 
@@ -281,7 +281,7 @@ async def custom_range_input(update: Update, context: ContextTypes.DEFAULT_TYPE)
     # Fallback
     return ConversationHandler.END
 
-# --- New Summary Command Flow ---
+#  New Summary Command Flow
 async def summary_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start the summary command flow by asking for timeframe."""
     user_id = update.effective_user.id if update.effective_user else "Unknown"
@@ -470,7 +470,7 @@ async def summary_grouping_selected(update: Update, context: ContextTypes.DEFAUL
 
     return ConversationHandler.END
 
-# --- New Details Command Flow ---
+#  New Details Command Flow
 async def details_conversation(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start the details command flow by asking for timeframe."""
     user_id = update.effective_user.id if update.effective_user else "Unknown"
@@ -658,7 +658,7 @@ async def details_grouping_selected(update: Update, context: ContextTypes.DEFAUL
 
     return ConversationHandler.END
 
-# --- Common Custom Range Handler ---
+#  Common Custom Range Handler
 async def command_custom_range_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle custom date range input for summary and details."""
     message_text = update.message.text
@@ -699,7 +699,7 @@ async def cancel_chart(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Command canceled.")
     return ConversationHandler.END
 
-# --- Set up all conversation handlers ---
+#  Set up all conversation handlers
 piechart_conv_handler = ConversationHandler(
     entry_points=[CommandHandler("piechart", piechart_command)],
     states={

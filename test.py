@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import math
 
 def generate_net_worth_history():
-    """Generate mock data for net worth history table"""
+    #Generate mock data for net worth history table
     
     # Connect to the database
     conn = sqlite3.connect('expenses.db')

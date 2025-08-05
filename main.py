@@ -1,7 +1,8 @@
-"""Main entry point for the finance tracker bot."""
+#Main entry point for the finance tracker bot.
 import logging
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
+import if_investment
 from asset_handlers import add_asset_text_command
 from asset_conversations import asset_text_conv_handler
 
@@ -33,7 +34,7 @@ logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 def main():
-    """Start the bot."""
+    #Start the bot.
     # Initialize databases
     init_db()
     init_asset_tables()

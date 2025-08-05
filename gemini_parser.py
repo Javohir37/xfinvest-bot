@@ -9,10 +9,8 @@ import json
 import logging
 
 def parse_expense_message(message_text):
-    """
-    Send a prompt to Gemini to extract structured spending data from user input.
-    Returns: JSON string from Gemini (the main bot will parse it).
-    """
+
+    #Send a prompt to Gemini to extract structured spending data from user input Returns JSON string from Gemini (the main bot will parse it).
     today = datetime.now().strftime('%Y-%m-%d')
     categories_str = ", ".join(EXPENSE_CATEGORIES)
 
@@ -81,9 +79,8 @@ Otherwise, respond with only this JSON (no commentary):
         return f'''{{"error": "api-error", "explanation": "Gemini error: {str(e)}"}}'''
 
 
-# Add this function to your gemini_parser.py file
 async def extract_transaction(message_text):
-    """Extract transaction information from message text using Gemini."""
+    #Extract transaction information from message text using Gemini
     client = genai.Client(
         api_key="AIzaSyBxgWtRszQJYalspo_0CGFSCS6B96zVxq0",
     )

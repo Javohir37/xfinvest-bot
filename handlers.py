@@ -1,4 +1,4 @@
-"""Command and message handlers for the expense tracker bot"""
+#Command and message handlers for the expense tracker bot
 import logging
 import json
 from telegram import Update
@@ -8,7 +8,7 @@ from asset_nlp import process_asset_input
 
 from constants import TIME_RANGES
 from db import add_transaction, get_transactions_summary, get_transactions_details
-from gemini_parser import parse_expense_message
+from gemini_parser import parse_expense_message, extract_transaction
 from chart_generator import generate_pie_chart
 from utils import safe_reply, clean_json_response
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Sends a welcome message when the /start command is issued."""
+    #Sends a welcome message when the /start command is issued
     user_id = update.effective_user.id if update.effective_user else "Unknown"
     logger.info(f"Received /start command from user {user_id}")
 
@@ -37,7 +37,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                      )
 
 async def summary_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Sends a summary of transactions."""
+    #Sends a summary of transactions
     user_id = update.effective_user.id if update.effective_user else "Unknown"
     time_range_str = ' '.join(context.args) if context.args else 'today'
     logger.info(f"Received /summary command for range '{time_range_str}' from user {user_id}")
@@ -114,7 +114,6 @@ async def chart_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await safe_reply(update, "No data to display in a chart for this period.")
 
 
-# Replace your existing process_message function with this version
 async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Process incoming messages as either expenses or assets."""
     message_text = update.message.text
@@ -122,8 +121,7 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"Processing message from user {user_id}: {message_text}")
 
     # Check if the message contains common investment keywords
-    investment_keywords = ['bought', 'purchased', 'shares', 'stock', 'bitcoin', 'crypto',
-                           'investment', 'invested', 'asset']
+    investment_keywords = ['purchased', 'shares']
 
     if any(keyword in message_text.lower() for keyword in investment_keywords):
         # Try processing as an asset first
@@ -132,20 +130,43 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
     # If not an asset or asset processing failed, process as an expense
-    await update.message.reply_text("Analyzing your expense...")
-
-    transactions = await extract_transaction(message_text)
-
-    if not transactions:
-        await update.message.reply_text("I couldn't understand your message. "
-                                        "Please try rephrasing or provide more details.")
+    if not update.message or not update.message.text:
+        logger.warning("Received update with no message text")
         return
 
-    for transaction in transactions:
-        add_transaction(transaction)
+    message_text = update.message.text
+    user_id = update.effective_user.id if update.effective_user else "Unknown"
+    logger.info(f"Processing message '{message_text}' from user {user_id}")
 
-    # Your existing expense response formatting code here
+    thinking_message = await update.message.reply_text("🧠 Thinking...")
 
+    gemini_response_str = parse_expense_message(message_text)
+
+    try:
+        # Clean the response
+        cleaned_str = clean_json_response(gemini_response_str)
+
+        data = json.loads(cleaned_str)
+
+        if "error" in data:
+            await thinking_message.edit_text(f"😕 Error from parser: {data.get('explanation', 'Unknown error')}")
+            return
+
+        add_transaction(data, message_text)
+
+        if data['type'] == 'expense':
+            reply = f"✅ Expense recorded: ${data['amount_usd']:,.2f} for {data['category']}."
+        else:
+            reply = f"✅ Resisted spending recorded: Saved ${data['amount_usd']:,.2f} from {data['category']}."
+
+        await thinking_message.edit_text(reply)
+
+    except json.JSONDecodeError:
+        logger.error(f"Failed to decode JSON from Gemini: {gemini_response_str}")
+        await thinking_message.edit_text("Sorry, I couldn't understand that. The response from the parser was invalid.")
+    except Exception as e:
+        logger.error(f"An error occurred in process_message: {e}", exc_info=True)
+        await thinking_message.edit_text("An unexpected error occurred while processing your message.")
 
 async def handle_potential_asset_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle messages that might be about assets."""

@@ -1,7 +1,3 @@
-"""
-Fix for the NLP classification issue in the finance bot
-Add this code to your asset_nlp.py file or replace the relevant functions
-"""
 
 import re
 import spacy
@@ -38,10 +34,7 @@ EXPENSE_PATTERNS = [
 
 
 def classify_user_input(text):
-    """
-    Classify user input into categories: investment, expense, or other
-    Returns: category_name (str), confidence (float)
-    """
+
     text = text.lower().strip()
 
     # Check for investment patterns
@@ -54,7 +47,6 @@ def classify_user_input(text):
         if re.search(pattern, text, re.IGNORECASE):
             return "expense", 0.85
 
-    # Use SpaCy for more nuanced classification
     doc = nlp(text)
 
     # Check for money mentions combined with context
@@ -80,11 +72,8 @@ def classify_user_input(text):
 
 
 async def process_asset_input(text):
-    """
-    Enhanced function to first classify input before processing it as an asset
-    Returns: success (bool), message (str)
-    """
-    # First classify the input
+    #first classifies input before processing it as an asset
+
     category, confidence = classify_user_input(text)
 
     if category == "expense":
@@ -95,16 +84,13 @@ async def process_asset_input(text):
         # Not clear what this input is
         return False, "I'm not sure if this is an investment. Please use a clearer format like 'Bought 10 shares of Apple at $150 on 2025-07-15'"
 
-    # Continue with existing asset processing logic
-    # ... (your existing asset extraction code) ...
 
-    # For testing purposes, just return that it's recognized as an investment
+
     return True, f"Recognized as investment data. Processing: {text}"
 
 
-# Add this to your message handler
 async def handle_text_input(update, context):
-    """Handle text input - route to appropriate processor based on classification"""
+    #Handle text input - route to appropriate processor based on classification
     text = update.message.text
 
     # Skip if it's a command

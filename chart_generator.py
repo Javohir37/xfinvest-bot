@@ -5,7 +5,7 @@ import numpy as np
 
 
 def generate_pie_chart(summary_data, title):
-    """Generate a pie chart from transaction summary data."""
+    #Generate a pie chart from transaction summary data.
     expenses = summary_data.get('expenses_by_category', {})
 
     # If there's no expense data, don't generate a chart
@@ -58,7 +58,7 @@ def generate_pie_chart(summary_data, title):
 
 
 def generate_dual_pie_chart(summary_data, title):
-    """Generate two pie charts: actual spending and hypothetical with resisted included."""
+    #Generate two pie charts: actual spending and hypothetical with resisted included
     expenses = summary_data.get('expenses_by_category', {})
     resisted = summary_data.get('total_resisted', 0)
 

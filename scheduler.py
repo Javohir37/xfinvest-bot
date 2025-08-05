@@ -1,4 +1,4 @@
-"""Scheduling functionality for net worth tracking."""
+#Scheduling functionality for net worth tracking
 import atexit
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def setup_scheduler():
-    """Set up daily recording of net worth."""
+    #Set up daily recording of net worth
     scheduler = BackgroundScheduler()
 
     # Run every day at midnight
@@ -27,7 +27,7 @@ def setup_scheduler():
 
 
 def daily_net_worth_update():
-    """Daily job to update net worth."""
+    #Daily job to update net worth
     today = datetime.now().strftime('%Y-%m-%d')
     logger.info(f"Recording net worth for {today}")
 

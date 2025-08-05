@@ -1,4 +1,4 @@
-"""Process asset information from natural language using Gemini."""
+#Process asset information from natural language using Gemini.
 import logging
 import asyncio
 import json
@@ -12,16 +12,15 @@ from db_assets import add_asset
 logger = logging.getLogger(__name__)
 
 async def process_asset_input(user_text):
-    """Process user input about assets using Gemini."""
+    #Process user input about assets using Gemini
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, lambda: gemini_process_asset(user_text))
     return result
 
 def gemini_process_asset(user_text):
-    """
-    Process asset text with Gemini and return structured data.
-    Uses the exact Gemini implementation from the user.
-    """
+
+    #Process asset text with Gemini and return structured data.
+
     full_response = ""
 
     client = genai.Client(

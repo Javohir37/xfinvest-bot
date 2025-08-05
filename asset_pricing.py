@@ -1,4 +1,4 @@
-"""Asset pricing functionality using Google GenAI client with streaming."""
+#Asset pricing functionality using Google GenAI client with streaming.
 import logging
 from datetime import datetime
 import json
@@ -14,7 +14,7 @@ from db_assets import update_asset_value
 logger = logging.getLogger(__name__)
 
 async def get_current_asset_prices(assets: List[Dict]) -> List[Dict]:
-    """Get current prices for all assets using Gemini API."""
+    #Get current prices for all assets using Gemini API.
     updated_assets = []
 
     for asset in assets:
@@ -24,7 +24,7 @@ async def get_current_asset_prices(assets: List[Dict]) -> List[Dict]:
     return updated_assets
 
 async def get_current_price(asset: Dict) -> Dict:
-    """Get current price for a single asset using Gemini API."""
+    #Get current price for a single asset using Gemini API
     asset_id = asset['id']
     asset_name = asset['name']
     asset_ticker = asset['ticker']
@@ -77,7 +77,7 @@ async def get_current_price(asset: Dict) -> Dict:
     return updated_asset
 
 async def get_gemini_stream_response(query: str) -> str:
-    """Get streaming response from Gemini using exact user code structure."""
+    #Get streaming response from Gemini
     # Run in executor to avoid blocking
     loop = asyncio.get_event_loop()
     response_text = await loop.run_in_executor(None,
@@ -85,11 +85,9 @@ async def get_gemini_stream_response(query: str) -> str:
     return response_text
 
 def generate_stream_response(query: str) -> str:
-    """Generate streaming response from Gemini using the user's exact code pattern."""
+    #Generate streaming response from Gemini
     # Using a string buffer to collect chunks
     buffer = io.StringIO()
-
-    # Following the user's code structure exactly
     client = genai.Client(
         api_key="AIzaSyBxgWtRszQJYalspo_0CGFSCS6B96zVxq0",
     )

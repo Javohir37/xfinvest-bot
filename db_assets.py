@@ -1,11 +1,11 @@
-"""Database functions for asset management."""
+#Database functions for asset management.
 import sqlite3
 from datetime import datetime
 from db import get_db_connection, parse_date_range
 
 
 def init_asset_tables():
-    """Initializes the asset-related database tables."""
+    #Initializes the asset-related database tables.
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -57,7 +57,7 @@ def init_asset_tables():
 
 
 def add_asset(asset_data):
-    """Adds a new asset to the portfolio."""
+    #Adds a new asset to the portfolio.
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -77,7 +77,7 @@ def add_asset(asset_data):
 
 
 def update_asset_value(asset_id, current_price, date=None):
-    """Updates the current value of an asset."""
+    #Updates the current value of an asset
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -100,7 +100,7 @@ def update_asset_value(asset_id, current_price, date=None):
 
 
 def record_asset_value(asset_id, current_price, total_value, date=None):
-    """Records the current value of an asset."""
+    #Records the current value of an asset
     if date is None:
         date = datetime.now().strftime('%Y-%m-%d')
 
@@ -115,7 +115,7 @@ def record_asset_value(asset_id, current_price, total_value, date=None):
 
 
 def record_net_worth(date=None):
-    """Records the net worth for a specific date."""
+    #Records the net worth for a specific date
     if date is None:
         date = datetime.now().strftime('%Y-%m-%d')
 

@@ -4,17 +4,15 @@ from datetime import date, timedelta, datetime
 
 
 def get_db_connection():
-    """Establishes a connection to the database."""
+    #Establishes a connection to the database
     conn = sqlite3.connect('expenses.db')
     conn.row_factory = sqlite3.Row
     return conn
 
 
 def init_db():
-    """
-    Initializes the database schema. This function is self-contained and
-    is called only once when the bot starts.
-    """
+    #Initializes the database schema self-contained and is called only once when the bot starts.
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -34,7 +32,7 @@ def init_db():
 
 
 def add_transaction(transaction_data, source_text):
-    """Adds a parsed transaction to the database."""
+    #Adds a parsed transaction to the database
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -47,7 +45,7 @@ def add_transaction(transaction_data, source_text):
 
 
 def parse_date_range(time_range_str):
-    """Converts a string like 'this_week' into a start and end date."""
+    #Converts a string like 'this_week' into a start and end date
     today = date.today()
 
     # Map of predefined ranges
@@ -83,7 +81,7 @@ def parse_date_range(time_range_str):
 
 
 def get_transactions_summary(time_range_str):
-    """Queries the database for a summary of transactions."""
+    #Queries the database for a summary of transactions
     start_date, end_date = parse_date_range(time_range_str)
     conn = get_db_connection()
     cursor = conn.cursor()

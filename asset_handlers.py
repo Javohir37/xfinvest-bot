@@ -1,4 +1,4 @@
-"""Command handlers for investment tracking functionality."""
+#Command handlers for investment tracking functionality.
 import logging
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -11,7 +11,7 @@ from utils import safe_reply
 logger = logging.getLogger(__name__)
 
 async def asset_worth_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show current asset values with real-time pricing."""
+    #Show current asset values with real-time pricing.
     user_id = update.effective_user.id if update.effective_user else "Unknown"
     logger.info(f"Received /asset_worth command from user {user_id}")
 
@@ -76,7 +76,7 @@ async def asset_worth_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     await update.message.reply_text("\n".join(response), parse_mode='Markdown')
 
 async def asset_piechart_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show asset distribution as pie chart with real-time pricing."""
+    #Show asset distribution as pie chart with real-time pricing.
     user_id = update.effective_user.id if update.effective_user else "Unknown"
     logger.info(f"Received /asset_piechart command from user {user_id}")
 

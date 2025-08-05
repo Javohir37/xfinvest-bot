@@ -1,4 +1,3 @@
-"""Chart generation for assets and net worth."""
 import io
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,7 +5,7 @@ from datetime import datetime
 
 
 def generate_asset_pie_chart(assets_data):
-    """Generates a pie chart showing asset distribution with current prices."""
+    #Generates a pie chart showing asset distribution with current prices.
     plt.figure(figsize=(10, 7))
 
     # Prepare data
@@ -44,7 +43,7 @@ def generate_asset_pie_chart(assets_data):
     return buffer
 
 def generate_net_worth_bar_chart(net_worth_data, title, interval):
-    """Generates a bar chart showing net worth over time."""
+    #Generates a bar chart showing net worth over time.
     plt.figure(figsize=(12, 7))
 
     # Prepare data

@@ -1,4 +1,4 @@
-"""Conversation handlers for investment tracking."""
+#Conversation handlers for investment tracking.
 import logging
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -11,13 +11,10 @@ from constants import TIME_RANGES
 from db_assets import add_asset, get_net_worth_history
 from asset_charts import generate_net_worth_bar_chart
 
-# Add at the top with other imports
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler, ConversationHandler
 
 from db_assets import add_asset
-# Import the missing command handler
-# Import the process_asset_input function
 from asset_nlp import process_asset_input
 
 from telegram.ext import CommandHandler, MessageHandler, filters, ConversationHandler
@@ -31,9 +28,9 @@ SELECT_INTERVAL = 1
 SELECT_GROUPING = 2
 
 
-# --- Asset Bar Chart Command Flow ---
+#  Asset Bar Chart Command Flow
 async def asset_barchart_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start the asset bar chart flow by asking for timeframe."""
+    #Start the asset bar chart flow by asking for timeframe.
     user_id = update.effective_user.id if update.effective_user else "Unknown"
     logger.info(f"Received /asset_barchart command from user {user_id}")
 
@@ -60,7 +57,7 @@ async def asset_barchart_command(update: Update, context: ContextTypes.DEFAULT_T
 
 
 async def asset_barchart_timeframe_selected(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle timeframe selection for asset bar chart."""
+    #Handle timeframe selection for asset bar chart.
     query = update.callback_query
     await query.answer()
 
@@ -182,7 +179,7 @@ async def custom_asset_range_input(update: Update, context: ContextTypes.DEFAULT
     return ConversationHandler.END
 
 
-# --- Add Asset Command Flow ---
+#  Add Asset Command Flow
 async def add_asset_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start the add asset flow."""
     await update.message.reply_text(
@@ -337,7 +334,7 @@ async def cancel_asset(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
-# --- Set up asset conversation handlers ---
+#  Set up asset conversation handlers
 asset_barchart_conv_handler = ConversationHandler(
     entry_points=[CommandHandler("asset_barchart", asset_barchart_command)],
     states={
