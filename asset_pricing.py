@@ -16,7 +16,8 @@ logger = logging.getLogger(__name__)
 async def get_current_asset_prices(assets: List[Dict]) -> List[Dict]:
     #Get current prices for all assets using Gemini API.
     updated_assets = []
-
+    #for asset in assets:
+        #print(asset.items())
     for asset in assets:
         updated_asset = await get_current_price(asset)
         updated_assets.append(updated_asset)
@@ -92,7 +93,7 @@ def generate_stream_response(query: str) -> str:
         api_key="AIzaSyBxgWtRszQJYalspo_0CGFSCS6B96zVxq0",
     )
 
-    model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash-lite"
     contents = [
         types.Content(
             role="user",

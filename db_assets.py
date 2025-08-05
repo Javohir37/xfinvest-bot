@@ -158,7 +158,7 @@ def record_net_worth(date=None):
 
 
 def get_assets():
-    """Gets a list of all assets with their current values."""
+    #Gets a list of all assets with their current values.
     conn = get_db_connection()
     cursor = conn.cursor()
 

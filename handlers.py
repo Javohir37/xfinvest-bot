@@ -3,7 +3,7 @@ import logging
 import json
 from telegram import Update
 from telegram.ext import ContextTypes
-
+from initial_parser import generate
 from asset_nlp import process_asset_input
 
 from constants import TIME_RANGES
@@ -22,8 +22,8 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await safe_reply(update,
                      "👋 Welcome to your Finance Tracker!\n\n"
-                     "SPENDING TRACKING:\n"
-                     "Send messages like 'Bought coffee for 5€' or 'Saved $10 by not buying pizza'.\n\n"
+                     "SPENDING AND INVESTMENT TRACKING WITH AI:\n"
+                     "Send messages like 'Bought coffee for 5€', 'Saved $10 by not buying pizza' or 'purchased 3 stopgame shares for 10 bucks each'.\n\n"
                      "SPENDING COMMANDS:\n"
                      "/summary - Interactive spending summary\n"
                      "/details - Interactive transaction details\n"
@@ -34,6 +34,8 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                      "/asset_worth - View current asset values\n"
                      "/asset_piechart - Asset distribution chart\n"
                      "/asset_barchart - Net worth history chart"
+                     "if the bot is down or has some problems plese let me know at @JavohirXR or khatamov37@gmail.com"
+                     "Thanks"
                      )
 
 async def summary_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -113,60 +115,63 @@ async def chart_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await safe_reply(update, "No data to display in a chart for this period.")
 
+############################################
 
 async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Process incoming messages as either expenses or assets."""
+    #Process incoming messages as either expenses or assets
+
     message_text = update.message.text
     user_id = update.effective_user.id if update.effective_user else "Unknown"
     logger.info(f"Processing message from user {user_id}: {message_text}")
 
-    # Check if the message contains common investment keywords
-    investment_keywords = ['purchased', 'shares']
+    statement1 = generate(message_text)
 
-    if any(keyword in message_text.lower() for keyword in investment_keywords):
+    if '1' in statement1:
         # Try processing as an asset first
         asset_success = await handle_potential_asset_message(update, context)
         if asset_success:
             return
 
-    # If not an asset or asset processing failed, process as an expense
-    if not update.message or not update.message.text:
-        logger.warning("Received update with no message text")
-        return
-
-    message_text = update.message.text
-    user_id = update.effective_user.id if update.effective_user else "Unknown"
-    logger.info(f"Processing message '{message_text}' from user {user_id}")
-
-    thinking_message = await update.message.reply_text("🧠 Thinking...")
-
-    gemini_response_str = parse_expense_message(message_text)
-
-    try:
-        # Clean the response
-        cleaned_str = clean_json_response(gemini_response_str)
-
-        data = json.loads(cleaned_str)
-
-        if "error" in data:
-            await thinking_message.edit_text(f"😕 Error from parser: {data.get('explanation', 'Unknown error')}")
+        if not asset_success:
+            await update.message.reply_text("I couldn't understand your message. "
+                                            "Please try rephrasing or provide more details.")
             return
 
-        add_transaction(data, message_text)
+        for transaction in asset_success:
+            add_transaction(transaction)
+    else:
+        thinking_message = await update.message.reply_text("🧠 Thinking...")
 
-        if data['type'] == 'expense':
-            reply = f"✅ Expense recorded: ${data['amount_usd']:,.2f} for {data['category']}."
-        else:
-            reply = f"✅ Resisted spending recorded: Saved ${data['amount_usd']:,.2f} from {data['category']}."
+        gemini_response_str = parse_expense_message(message_text)
 
-        await thinking_message.edit_text(reply)
+        try:
+            # Clean the response
+            cleaned_str = clean_json_response(gemini_response_str)
 
-    except json.JSONDecodeError:
-        logger.error(f"Failed to decode JSON from Gemini: {gemini_response_str}")
-        await thinking_message.edit_text("Sorry, I couldn't understand that. The response from the parser was invalid.")
-    except Exception as e:
-        logger.error(f"An error occurred in process_message: {e}", exc_info=True)
-        await thinking_message.edit_text("An unexpected error occurred while processing your message.")
+            data = json.loads(cleaned_str)
+
+            if "error" in data:
+                await thinking_message.edit_text(f"😕 Error from parser: {data.get('explanation', 'Unknown error')}")
+                return
+
+            add_transaction(data, message_text)
+
+            if data['type'] == 'expense':
+                reply = f"✅ Expense recorded: ${data['amount_usd']:,.2f} for {data['category']}."
+            else:
+                reply = f"✅ Resisted spending recorded: Saved ${data['amount_usd']:,.2f} from {data['category']}."
+
+            await thinking_message.edit_text(reply)
+
+        except json.JSONDecodeError:
+            logger.error(f"Failed to decode JSON from Gemini: {gemini_response_str}")
+            await thinking_message.edit_text(
+                "Sorry, I couldn't understand that. The response from the parser was invalid.")
+        except Exception as e:
+            logger.error(f"An error occurred in process_message: {e}", exc_info=True)
+            await thinking_message.edit_text("An unexpected error occurred while processing your message.")
+
+############################
 
 async def handle_potential_asset_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle messages that might be about assets."""

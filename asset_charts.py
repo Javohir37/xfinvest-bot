@@ -1,4 +1,6 @@
 import io
+import random
+
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
@@ -11,13 +13,18 @@ def generate_asset_pie_chart(assets_data):
     # Prepare data
     asset_names = []
     asset_values = []
-    asset_colors = {
-        'stock': '#FF9999',
-        'crypto': '#66B2FF',
-        'real_estate': '#99FF99',
-        'cash': '#FFCC99',
-        'other': '#CCCCFF'
-    }
+    asset_colors = [
+        '#FF5733',  # reddish-orange
+        '#33FF57',  # bright green
+        '#3357FF',  # blue
+        '#FF33A1',  # pink
+        '#FFC300',  # golden yellow
+        '#8E44AD',  # purple
+        '#1ABC9C',  # teal
+        '#E67E22',  # orange
+        '#2ECC71',  # green
+        '#34495E',  # dark slate blue
+    ]
     colors = []
 
     for asset in assets_data:
@@ -27,7 +34,7 @@ def generate_asset_pie_chart(assets_data):
             name += f" [{asset['ticker']}]"
         asset_names.append(name)
         asset_values.append(asset['total_value'])
-        colors.append(asset_colors.get(asset['type'], '#CCCCCC'))
+        colors.append(random.choice(asset_colors))
 
     # Create pie chart
     plt.pie(asset_values, labels=asset_names, autopct='%1.1f%%', startangle=90, colors=colors)
