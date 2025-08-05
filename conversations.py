@@ -701,7 +701,7 @@ async def cancel_chart(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 #  Set up all conversation handlers
 piechart_conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("piechart", piechart_command)],
+    entry_points=[CommandHandler("spending_piechart", piechart_command)],
     states={
         SELECT_TIMEFRAME: [
             CallbackQueryHandler(piechart_timeframe_selected, pattern=r"^timeframe_"),
@@ -713,7 +713,7 @@ piechart_conv_handler = ConversationHandler(
 )
 
 barchart_conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("barchart", barchart_command)],
+    entry_points=[CommandHandler("spending_barchart", barchart_command)],
     states={
         SELECT_TIMEFRAME: [
             CallbackQueryHandler(barchart_timeframe_selected, pattern=r"^timeframe_"),

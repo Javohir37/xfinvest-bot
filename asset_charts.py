@@ -24,7 +24,19 @@ def generate_asset_pie_chart(assets_data):
         '#E67E22',  # orange
         '#2ECC71',  # green
         '#34495E',  # dark slate blue
+
+        '#C70039',  # deep red
+        '#00CED1',  # dark turquoise
+        '#9B59B6',  # amethyst
+        '#F39C12',  # sunflower
+        '#7D3C98',  # dark violet
+        '#27AE60',  # emerald green
+        '#2980B9',  # strong blue
+        '#D35400',  # pumpkin
+        '#BDC3C7',  # light gray
+        '#2C3E50',  # dark navy
     ]
+
     colors = []
 
     for asset in assets_data:
